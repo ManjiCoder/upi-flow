@@ -70,7 +70,7 @@ export default function Search() {
   useEffect(() => {
     // Deboucing
     const timerId = setTimeout(async () => {
-      const data = await showSearchResults(text);
+      const data = await showSearchResults(text.trim());
       // console.log(data);
       if (data) {
         setSearchResults(data);
