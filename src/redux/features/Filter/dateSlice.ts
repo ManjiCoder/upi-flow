@@ -114,6 +114,8 @@ const dateSlice = createSlice({
           return (
             isEqual(date, startDate) ||
             isEqual(date, endDate) ||
+            isSameDay(date, startDate) ||
+            isSameDay(date, endDate) ||
             (isBefore(date, endDate) && isAfter(date, startDate))
           );
         })
