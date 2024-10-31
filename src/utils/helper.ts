@@ -13,3 +13,7 @@ export const formattedAmount = (amount: any, currency?: boolean) => {
     minimumFractionDigits: 0,
   }).format(amount);
 };
+
+export const getTotal = (x: any, y: any) => {
+  return x + y;
+};

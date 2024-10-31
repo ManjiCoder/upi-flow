@@ -2,7 +2,7 @@ import PageWrapper from '@/components/layout/PageWrapper';
 import { Input } from '@/components/ui/input';
 import { useAppSelector } from '@/redux/hooks';
 import { Transaction } from '@/types/constant';
-import { formattedAmount } from '@/utils/helper';
+import { formattedAmount, getTotal } from '@/utils/helper';
 import { format } from 'date-fns';
 import {
   CalendarSearch,
@@ -21,17 +21,11 @@ export default function Search() {
     const totalIncome = searchResults
       .map(({ credit }) => credit)
       .filter(Boolean)
-      .reduce((x, y) => {
-        // @ts-ignore
-        return x + y;
-      }, 0);
+      .reduce(getTotal, 0);
     const totalExpense = searchResults
       .map(({ debit }) => debit)
       .filter(Boolean)
-      .reduce((x, y) => {
-        // @ts-ignore
-        return x + y;
-      }, 0);
+      .reduce(getTotal, 0);
 
     const totalBalance = (totalIncome || 0) - (totalExpense || 0);
     return {

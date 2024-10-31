@@ -1,4 +1,5 @@
 import { FilterOption, Transaction } from '@/types/constant';
+import { getTotal } from '@/utils/helper';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   addDays,
@@ -135,17 +136,11 @@ const dateSlice = createSlice({
       const totalIncome = filterData
         .map(({ credit }) => credit)
         .filter(Boolean)
-        .reduce((x, y) => {
-          // @ts-ignore
-          return x + y;
-        }, 0) as number;
+        .reduce(getTotal, 0) as number;
       const totalExpense = filterData
         .map(({ debit }) => debit)
         .filter(Boolean)
-        .reduce((x, y) => {
-          // @ts-ignore
-          return x + y;
-        }, 0) as number;
+        .reduce(getTotal, 0) as number;
       const totalBalance = (totalIncome || 0) - (totalExpense || 0);
 
       state.filterData = newData;

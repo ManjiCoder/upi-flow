@@ -18,6 +18,9 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { useAppSelector } from '@/redux/hooks';
+import { FilterOption } from '@/types/constant';
+import { addMonths, endOfWeek, format, startOfWeek } from 'date-fns';
+import { useMemo } from 'react';
 
 export const description = 'A line chart with a label';
 
@@ -42,13 +45,54 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function LineGraph() {
-  const { filterData } = useAppSelector((state) => state.dateSlice);
+  const { filterData, dateFilter } = useAppSelector((state) => state.dateSlice);
+  const { filter } = useAppSelector((state) => state.filter);
   console.log(filterData);
+  const showDate = useMemo(() => {
+    let formattedDate;
+    switch (filter.name) {
+      case FilterOption.Daily.name:
+        formattedDate = format(new Date(dateFilter), filter.format);
+        break;
+
+      case FilterOption.Weekly.name:
+        const d1 = startOfWeek(new Date(dateFilter), { weekStartsOn: 0 });
+        const d2 = endOfWeek(new Date(dateFilter), { weekStartsOn: 0 });
+        formattedDate = `${format(d1, filter.format)} - ${format(
+          d2,
+          filter.format
+        )}`;
+        break;
+
+      case FilterOption.ThreeMonths.name:
+        formattedDate = `${format(
+          new Date(dateFilter),
+          filter.format
+        )} - ${format(addMonths(new Date(dateFilter), 2), filter.format)}`;
+        break;
+
+      case FilterOption.SixMonths.name:
+        formattedDate = `${format(
+          new Date(dateFilter),
+          filter.format
+        )} - ${format(addMonths(new Date(dateFilter), 5), filter.format)}`;
+        break;
+
+      case FilterOption.Yearly.name:
+        formattedDate = format(new Date(dateFilter), filter.format);
+        break;
+
+      default:
+        formattedDate = format(new Date(dateFilter), filter.format);
+        break;
+    }
+    return formattedDate;
+  }, [filter, dateFilter]);
   return (
     <Card>
       <CardHeader>
         <CardTitle>Line Chart - Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardDescription>{showDate}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
