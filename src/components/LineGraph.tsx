@@ -19,27 +19,28 @@ import {
 } from '@/components/ui/chart';
 import { useAppSelector } from '@/redux/hooks';
 import { FilterOption } from '@/types/constant';
+import { getTotal } from '@/utils/helper';
 import { addMonths, endOfWeek, format, startOfWeek } from 'date-fns';
 import { useMemo } from 'react';
 
 export const description = 'A line chart with a label';
 
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 },
-];
+// const chartData = [
+//   { month: 'January', desktop: 186, mobile: 80 },
+//   { month: 'February', desktop: 305, mobile: 200 },
+//   { month: 'March', desktop: 237, mobile: 120 },
+//   { month: 'April', desktop: 73, mobile: 190 },
+//   { month: 'May', desktop: 209, mobile: 130 },
+//   { month: 'June', desktop: 214, mobile: 140 },
+// ];
 
 const chartConfig = {
   desktop: {
-    label: 'Desktop',
+    label: 'credit',
     color: 'hsl(var(--chart-1))',
   },
   mobile: {
-    label: 'Mobile',
+    label: 'debit',
     color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
@@ -47,7 +48,7 @@ const chartConfig = {
 export function LineGraph() {
   const { filterData, dateFilter } = useAppSelector((state) => state.dateSlice);
   const { filter } = useAppSelector((state) => state.filter);
-  console.log(filterData);
+  // console.log(filterData);
   const showDate = useMemo(() => {
     let formattedDate;
     switch (filter.name) {
@@ -88,6 +89,20 @@ export function LineGraph() {
     }
     return formattedDate;
   }, [filter, dateFilter]);
+
+  const chartData = Object.entries(filterData).map(([key, item]) => {
+    return {
+      key: format(key, 'dd-MMM-yyyy'),
+      credit: item
+        .map((item) => item.credit)
+        .filter(Boolean)
+        .reduce(getTotal, 0),
+      debit: item
+        .map((item) => item.debit)
+        .filter(Boolean)
+        .reduce(getTotal, 0),
+    };
+  });
   return (
     <Card>
       <CardHeader>
@@ -107,18 +122,18 @@ export function LineGraph() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey='month'
+              dataKey='key'
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator='line' />}
             />
             <Line
-              dataKey='desktop'
+              dataKey='credit'
               type='natural'
               stroke='var(--color-desktop)'
               strokeWidth={2}
