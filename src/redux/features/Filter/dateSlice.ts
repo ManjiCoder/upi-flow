@@ -7,7 +7,6 @@ import {
   addYears,
   isAfter,
   isBefore,
-  isEqual,
   isSameDay,
   parseISO,
   startOfWeek,
@@ -112,8 +111,6 @@ const dateSlice = createSlice({
         .filter((item) => {
           const date = parseISO(item.date);
           return (
-            isEqual(date, startDate) ||
-            isEqual(date, endDate) ||
             isSameDay(date, startDate) ||
             isSameDay(date, endDate) ||
             (isBefore(date, endDate) && isAfter(date, startDate))
