@@ -1,7 +1,14 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import {
   Card,
@@ -19,7 +26,7 @@ import {
 } from '@/components/ui/chart';
 import { useAppSelector } from '@/redux/hooks';
 import { FilterOption } from '@/types/constant';
-import { getTotal } from '@/utils/helper';
+import { formattedAmount, getTotal } from '@/utils/helper';
 import { addMonths, endOfWeek, format, startOfWeek } from 'date-fns';
 import { useMemo } from 'react';
 
@@ -126,16 +133,22 @@ export function LineGraph() {
               axisLine={true}
               tickFormatter={(value) => format(value, 'MMM d')}
             />
+            <YAxis
+              tickLine={true}
+              tickMargin={10}
+              axisLine={true}
+              tickFormatter={(value) => formattedAmount(value, true)}
+            />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar dataKey='credit' fill='var(--color-desktop)' radius={8}>
+            <Bar dataKey='credit' fill='var(--color-desktop)' radius={4}>
               <LabelList
                 position='top'
                 offset={12}
                 className='fill-foreground'
-                fontSize={12}
+                fontSize={10}
               />
             </Bar>
-            <Bar dataKey='debit' fill='var(--color-mobile)' radius={8}>
+            <Bar dataKey='debit' fill='var(--color-mobile)' radius={4}>
               <LabelList
                 position='top'
                 offset={12}

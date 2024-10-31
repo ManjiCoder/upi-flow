@@ -143,7 +143,7 @@ export default function FlowInfo() {
   }, [data, dateFilter, filter]);
 
   return (
-    <header className='flex px-8 py-3 flex-col sticky top-0 backdrop-blur-sm border-b-2 mb-4'>
+    <header className='flex px-8 py-3 flex-col sticky z-50 top-0 backdrop-blur-sm border-b-2 mb-4'>
       <h3 className='flex border-none justify-between items-center mb-2'>
         <ChevronLeft
           className='h-10 w-10 p-2 hover:bg-secondary rounded-md'
