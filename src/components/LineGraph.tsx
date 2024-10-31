@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LabelList,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -131,22 +124,22 @@ export function LineGraph() {
               axisLine={true}
               tickFormatter={(value) => formattedAmount(value, true)}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
             <Bar dataKey='credit' fill='var(--color-desktop)' radius={4}>
-              <LabelList
+              {/* <LabelList
                 position='top'
                 offset={12}
                 className='fill-foreground'
-                fontSize={10}
-              />
+                formatter={formatNumber}
+              /> */}
             </Bar>
             <Bar dataKey='debit' fill='var(--color-mobile)' radius={4}>
-              <LabelList
+              {/* <LabelList
                 position='top'
-                offset={12}
+                offset={5}
                 className='fill-foreground'
-                fontSize={12}
-              />
+                formatter={formatNumber}
+              /> */}
             </Bar>
           </BarChart>
         </ChartContainer>
