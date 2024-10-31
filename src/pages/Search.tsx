@@ -59,7 +59,8 @@ export default function Search() {
               .toLowerCase()
               .includes(searchText.toLowerCase());
           })
-          .sort((a, b) => b.id - a.id);
+          // @ts-ignore
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
         res(result);
       } catch (error) {
         rej(false);
@@ -75,10 +76,11 @@ export default function Search() {
       if (data) {
         setSearchResults(data);
       }
-    }, 500);
+    }, 1000);
 
     return () => {
       if (timerId) clearInterval(timerId);
+      setSearchResults([]);
     };
   }, [text]);
 
