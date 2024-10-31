@@ -1,7 +1,7 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
   Card,
@@ -37,11 +37,11 @@ export const description = 'A line chart with a label';
 const chartConfig = {
   desktop: {
     label: 'credit',
-    color: 'hsl(var(--chart-1))',
+    color: '#ef4444',
   },
   mobile: {
     label: 'debit',
-    color: 'hsl(var(--chart-2))',
+    color: '#22c55e',
   },
 } satisfies ChartConfig;
 
@@ -111,30 +111,72 @@ export function LineGraph() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <AreaChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              left: 10,
+              right: 10,
+            }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey='key'
+              tickLine={true}
+              axisLine={true}
+              tickMargin={8}
+              tickFormatter={(value) => format(value, 'MMM-d')}
+            />
+            {/* <YAxis
               tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator='dashed' />}
-            />
-            <Bar
+              axisLine={true}
+              tickMargin={8}
+              tickFormatter={(value) => formattedAmount(value, true)}
+            /> */}
+            <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+            <defs>
+              <linearGradient id='fillDesktop' x1='0' y1='0' x2='0' y2='1'>
+                <stop
+                  offset='5%'
+                  stopColor='var(--color-desktop)'
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset='95%'
+                  stopColor='var(--color-desktop)'
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id='fillMobile' x1='0' y1='0' x2='0' y2='1'>
+                <stop
+                  offset='5%'
+                  stopColor='var(--color-mobile)'
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset='95%'
+                  stopColor='var(--color-mobile)'
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
+            <Area
               dataKey='credit'
-              className='fill-green-600 dark:fill-green-500'
-              radius={4}
+              type='natural'
+              fill='url(#fillMobile)'
+              fillOpacity={0.4}
+              stroke='var(--color-mobile)'
+              stackId='a'
             />
-            <Bar
+            <Area
               dataKey='debit'
-              className='fill-red-600 dark:fill-red-500'
-              radius={4}
+              type='natural'
+              fill='url(#fillDesktop)'
+              fillOpacity={0.4}
+              stroke='var(--color-desktop)'
+              stackId='a'
             />
-          </BarChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className='flex-col items-start gap-2 text-sm'>
