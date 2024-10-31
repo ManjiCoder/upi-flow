@@ -1,7 +1,7 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
   Card,
@@ -111,47 +111,30 @@ export function LineGraph() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 12,
-              right: 12,
-            }}
-          >
+          <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey='key'
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
               tickFormatter={(value) => value}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator='line' />}
+              content={<ChartTooltipContent indicator='dashed' />}
             />
-            <Line
+            <Bar
               dataKey='credit'
-              type='natural'
-              stroke='var(--color-desktop)'
-              strokeWidth={2}
-              dot={{
-                fill: 'var(--color-desktop)',
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            >
-              <LabelList
-                position='top'
-                offset={12}
-                className='fill-foreground'
-                fontSize={12}
-              />
-            </Line>
-          </LineChart>
+              className='fill-green-600 dark:fill-green-500'
+              radius={4}
+            />
+            <Bar
+              dataKey='debit'
+              className='fill-red-600 dark:fill-red-500'
+              radius={4}
+            />
+          </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className='flex-col items-start gap-2 text-sm'>
