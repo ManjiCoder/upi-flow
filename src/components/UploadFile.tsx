@@ -71,10 +71,8 @@ export default function UploadFile() {
         // To get uniques rows or updated rows
         const updatedRow = Array.from(
           new Map(
-            [...payments, ...rows].map((obj) => [
-              obj.refNo && obj.refNo + obj.details && obj.details,
-              obj,
-            ])
+            // @ts-ignore
+            [...payments, ...rows].map((obj) => [obj.refNo + obj.details, obj])
           ).values()
         );
         console.log(updatedRow, rows.length, payments.length);
