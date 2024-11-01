@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 export default function Search() {
-  const { data } = useAppSelector((state) => state.payments);
+  const payments = useAppSelector((state) => state.payments);
   const [text, setText] = useState('');
   const [searchResults, setSearchResults] = useState<Transaction[]>([]);
 
@@ -43,7 +43,7 @@ export default function Search() {
   const showSearchResults = (searchText: string) => {
     return new Promise<Transaction[] | false>((res, rej) => {
       try {
-        const newData = data.map((item) => {
+        const newData = payments.map((item) => {
           return { ...item, date: format(item.date, 'dd-MMM-yyyy') };
         });
         if (searchText.trim().length === 0) res([]);
