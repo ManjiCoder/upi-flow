@@ -10,7 +10,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { useAppSelector } from '@/redux/hooks';
-import { formattedAmount, getTotal } from '@/utils/helper';
+import { formatNumber, getTotal } from '@/utils/helper';
 import { format } from 'date-fns';
 
 export const description = 'A line chart with a label';
@@ -78,7 +78,8 @@ export function LineGraph() {
               tickLine={true}
               tickMargin={10}
               axisLine={true}
-              tickFormatter={(value) => formattedAmount(value, true)}
+              // @ts-ignore
+              tickFormatter={formatNumber}
             />
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
             <Bar dataKey='credit' fill='var(--color-desktop)' radius={4}>
