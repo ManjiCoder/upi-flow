@@ -75,7 +75,7 @@ export default function UploadFile() {
             [...payments, ...rows].map((obj) => [obj.refNo + obj.details, obj])
           ).values()
         );
-        console.log(updatedRow, rows.length, payments.length);
+        // console.log(updatedRow, rows.length, payments.length);
         dispatch(setRows(updatedRow));
         navigator('/records');
         resolve(rows);

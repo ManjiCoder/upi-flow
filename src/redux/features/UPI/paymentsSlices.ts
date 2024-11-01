@@ -9,7 +9,6 @@ const paymentsSlice = createSlice({
   reducers: {
     setRows: (_, action: PayloadAction<Transaction[]>) => {
       const records = action.payload;
-      console.log(records);
       return records;
     },
     resetPaymentSlice: () => {
