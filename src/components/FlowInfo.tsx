@@ -30,7 +30,7 @@ import {
 } from 'date-fns';
 
 export default function FlowInfo() {
-  const { data } = useAppSelector((state) => state.payments);
+  const payments = useAppSelector((state) => state.payments);
   const { filter } = useAppSelector((state) => state.filter);
   const { dateFilter, expense, income, balance } = useAppSelector(
     (state) => state.dateSlice
@@ -138,9 +138,9 @@ export default function FlowInfo() {
     const { startDate, endDate } = calculateFromToDate();
     // console.log(startDate, endDate);
     if (startDate && endDate) {
-      dispatch(setFilterData({ data, startDate, endDate }));
+      dispatch(setFilterData({ data: payments, startDate, endDate }));
     }
-  }, [data, dateFilter, filter]);
+  }, [payments, dateFilter, filter]);
 
   return (
     <header className='flex px-8 py-3 flex-col sticky z-50 top-0 backdrop-blur-sm border-b-2 mb-4'>

@@ -1,26 +1,16 @@
 import { Transaction } from '@/types/constant';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type StateProps = {
-  data: Transaction[];
-  keys: string[];
-};
-const initialState: StateProps = {
-  data: [],
-  keys: [],
-};
+const initialState: Transaction[] = [];
 
 const paymentsSlice = createSlice({
   name: 'payments',
   initialState,
   reducers: {
-    setRows: (
-      state,
-      action: PayloadAction<{ data: Transaction[]; keys: string[] }>
-    ) => {
-      const { data, keys } = action.payload;
-      state.data = data;
-      state.keys = keys;
+    setRows: (_, action: PayloadAction<Transaction[]>) => {
+      const records = action.payload;
+      console.log(records);
+      return records;
     },
     resetPaymentSlice: () => {
       return initialState;

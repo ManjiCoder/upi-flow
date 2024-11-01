@@ -1,4 +1,3 @@
-import { setRows } from '@/redux/features/UPI/paymentsSlices';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import passbook from '@/utils/Passbook';
 import { File } from 'buffer';
@@ -22,11 +21,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { setRows } from '@/redux/features/UPI/paymentsSlices';
 import { LucideEye, LucideEyeOff, X } from 'lucide-react';
 import { Button } from './ui/button';
 
 export default function UploadFile() {
-  const { data: payments, keys } = useAppSelector((state) => state.payments);
+  const payments = useAppSelector((state) => state.payments);
   const navigator = useNavigate();
   const [pdfText, setPdfText] = useState('');
   const [pass, setPass] = useState('');
@@ -69,24 +69,16 @@ export default function UploadFile() {
           return reject('Error occured while processing file');
         }
         // To get uniques rows or updated rows
-        const updatedRow = [...payments];
-        const updatedKeys = [...keys];
-
-        rows.forEach((item, idx) => {
-          if (item.details) {
-            const details = item.details.trim();
-            const key = item.refNo + details;
-            // console.log(updatedKeys.includes(key), key);
-            if (!updatedKeys.includes(key)) {
-              updatedKeys.push(key);
-              updatedRow.push(item);
-            } else if (updatedKeys.includes(key)) {
-              updatedRow[idx] = item;
-            }
-          }
-        });
-        // console.log(updatedRow.length, updatedKeys.length, rows.length);
-        dispatch(setRows({ data: updatedRow, keys: updatedKeys }));
+        const updatedRow = Array.from(
+          new Map(
+            [...payments, ...rows].map((obj) => [
+              obj.refNo && obj.refNo + obj.details && obj.details,
+              obj,
+            ])
+          ).values()
+        );
+        console.log(updatedRow, rows.length, payments.length);
+        dispatch(setRows(updatedRow));
         navigator('/records');
         resolve(rows);
       } catch (error: any) {
