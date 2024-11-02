@@ -332,7 +332,9 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const debit = arr[1];
   const balance = arr.find((str) => /[0-9]/i.test(str));
   const details = arr.slice(3, arr.length - 1).join(' ');
-  const refNo = details.split(' ').find((str) => !/[a-z]/i.test(str));
+  const detailsArr = details.split('/');
+  const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
+  const refNo = detailsArr[refNoIdx];
   const payload: Transaction = {
     id,
     date,
@@ -351,8 +353,10 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   }
   if (![' ', '', undefined].includes(refNo)) {
     payload.refNo = refNo;
+    const receiver = detailsArr.slice(refNoIdx + 1);
+    receiver.pop();
+    payload.receiver = receiver.join(' ');
   }
-  console.log();
   return payload;
 };
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
@@ -387,8 +391,8 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
     }
 
     // console.log(dateIdx.map((idx) => lines[idx]));
-    console.log(transactions);
-    // return transactions;
+    // console.log(transactions);
+    return transactions;
   } catch (error) {
     return false;
   }

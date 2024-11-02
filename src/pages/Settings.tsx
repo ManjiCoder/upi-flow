@@ -1,9 +1,11 @@
 import PageWrapper from '@/components/layout/PageWrapper';
+import passbook from '@/utils/Passbook';
 import { useEffect } from 'react';
+import { bank } from './temp/temp';
 
 export default function Settings() {
   useEffect(() => {
-    // const rows = passbook(bank);
+    const rows = passbook(bank);
     // const temp = rows.map((item) => {
     //   return {
     //     date: format(item.date, 'dd-MMM-yyyy'),
@@ -12,7 +14,7 @@ export default function Settings() {
     //   };
     // });
     // console.table(temp);
-    // console.table(rows);
+    console.table(rows);
   }, []);
 
   return (
