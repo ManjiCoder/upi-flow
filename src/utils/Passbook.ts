@@ -1,23 +1,8 @@
 import { banks, PaymentModes, Transaction } from '@/types/constant';
-import { isValid, parse } from 'date-fns';
+import { parse } from 'date-fns';
+import { emptyCheck, isValidDate, stringToNumber } from './helper';
 
-function emptyCheck(): (
-  value: string,
-  index: number,
-  array: string[]
-) => unknown {
-  return (str) => !['', ' '].includes(str.trim());
-}
-
-const isValidDate = (dateStr: string, format = 'dd-MM-yyyy') => {
-  const parsedDate = parse(dateStr, format, new Date());
-  return isValid(parsedDate);
-};
-
-const stringToNumber = (str: string) => {
-  return parseFloat(str.replaceAll(',', ''));
-};
-
+// ICICI
 const extractRow = (arr: string[], id: number, bankId: number) => {
   const payload: Transaction = {
     id,
@@ -202,6 +187,7 @@ const generateICICIRecords = (str: string, bankId: number, lastId: number) => {
   }
 };
 
+// Paytm
 const extractRowPaytm = (arr: string[], id: number, bankId: number) => {
   const payload: Transaction = {
     id: 0,
@@ -339,12 +325,16 @@ const generatePaytmRecords = (str: string, bankId: number, lastId: number) => {
   }
 };
 
+// SBI
+const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
+  console.log(str);
+};
 // Main Function
 function passbook(str: string, lastId = 0) {
   if (str.includes(banks.icici.name)) {
     return generateICICIRecords(str, banks.icici.id, lastId);
   } else if (str.includes(banks.sbi.name)) {
-    // TODO: SBI Function
+    return generateSBIRecords(str, banks.sbi.id, lastId);
   } else if (str.includes(banks.paytm.name)) {
     return generatePaytmRecords(str, banks.paytm.id, lastId);
   }
