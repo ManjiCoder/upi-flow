@@ -330,7 +330,7 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const date = parse(arr[2], 'dd MMM yyyy', new Date()).toISOString();
   const credit = arr[0];
   const debit = arr[1];
-  const balance = arr.find((str) => /[0-9]/i.test(str));
+  const balance = arr[arr.length - 1];
   const details = arr.slice(3, arr.length - 1).join(' ');
   const detailsArr = details.split('/');
   const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
@@ -359,6 +359,7 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   } else {
     payload.receiver = details;
   }
+  // console.log(balance, date);
   return payload;
 };
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
@@ -391,6 +392,7 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
 
         const newArr = arr.slice(0, arr.length - lastLine);
         const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
+        // console.log(row, newArr);
         transactions.unshift(row);
       } else {
         const arr = lines.slice(currLine - 2, nextLine - 2);
