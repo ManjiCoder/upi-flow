@@ -326,6 +326,30 @@ const generatePaytmRecords = (str: string, bankId: number, lastId: number) => {
 };
 
 // SBI
+const extractRowSbi = (arr: string[], id: number, bankId: number) => {
+  const date = parse(arr[2], 'dd MMM yyyy', new Date()).toISOString();
+  const credit = arr[0];
+  const debit = arr[1];
+  const balance = arr.find((str) => /[0-9]/i.test(str));
+  const details = arr.slice(3, arr.length - 1).join(' ');
+  const payload: Transaction = {
+    id,
+    date,
+    balance: 0,
+    bankId,
+  };
+  if (credit !== '-') {
+    payload.credit = stringToNumber(credit);
+  }
+  if (debit !== '-') {
+    payload.debit = stringToNumber(debit);
+  }
+  if (balance) {
+    payload.balance = stringToNumber(balance);
+  }
+  // console.log(details);
+  return payload;
+};
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
   // Steps date, rows, push
   try {
@@ -343,7 +367,20 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
         dateIdx.push(i);
       }
     });
-    console.log(dateIdx.map((idx) => lines[idx]));
+
+    for (let i = 0; i < dateIdx.length; i++) {
+      let j = i + 1;
+      const currLine = dateIdx[i];
+      const nextLine = dateIdx[j];
+      if (!nextLine) {
+        // console.log(currLine, nextLine);
+      } else {
+        const arr = lines.slice(currLine - 2, nextLine - 2);
+        const row = extractRowSbi(arr, lastId + transactions.length, bankId);
+      }
+    }
+
+    // console.log(dateIdx.map((idx) => lines[idx]));
     // return transactions;
   } catch (error) {
     return false;
