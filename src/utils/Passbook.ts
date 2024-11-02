@@ -332,6 +332,7 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const debit = arr[1];
   const balance = arr.find((str) => /[0-9]/i.test(str));
   const details = arr.slice(3, arr.length - 1).join(' ');
+  const refNo = details.split(' ').find((str) => !/[a-z]/i.test(str));
   const payload: Transaction = {
     id,
     date,
@@ -348,7 +349,10 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   if (balance) {
     payload.balance = stringToNumber(balance);
   }
-  // console.log(details);
+  if (![' ', '', undefined].includes(refNo)) {
+    payload.refNo = refNo;
+  }
+  console.log();
   return payload;
 };
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
