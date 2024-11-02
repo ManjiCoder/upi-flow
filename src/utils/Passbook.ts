@@ -327,7 +327,27 @@ const generatePaytmRecords = (str: string, bankId: number, lastId: number) => {
 
 // SBI
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
-  console.log(str);
+  // Steps date, rows, push
+  try {
+    const transactions: Transaction[] = [];
+    const dateIdx: number[] = [];
+    const target =
+      'Date\n \nCredit\n \nBalance\nDetails\n \nRef No./Cheque\nNo\nDebit';
+    const isTarget = str.includes(target);
+    if (!isTarget) throw new Error('Invalid records!');
+    const startIdx = str.indexOf(target) + target.length;
+    const newStr = str.slice(startIdx, str.length);
+    const lines = newStr.split('\n').filter(emptyCheck());
+    lines.forEach((line, i) => {
+      if (isValidDate(line, 'dd MMM yyyy')) {
+        dateIdx.push(i);
+      }
+    });
+    console.log(dateIdx.map((idx) => lines[idx]));
+    // return transactions;
+  } catch (error) {
+    return false;
+  }
 };
 // Main Function
 function passbook(str: string, lastId = 0) {

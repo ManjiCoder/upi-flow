@@ -5,7 +5,7 @@ export enum appInfo {
 
 export const banks = {
   icici: { id: 1, name: 'icicibank' },
-  sbi: { id: 2, name: 'statebank' },
+  sbi: { id: 2, name: 'State Bank of India' },
   paytm: { id: 3, name: 'www.paytmbank.com' },
 };
 
