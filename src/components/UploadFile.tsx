@@ -64,7 +64,7 @@ export default function UploadFile() {
         setPdfText(text);
         // console.log(text);
         const rows = passbook(text, payments.length);
-        // console.table(rows);
+        console.table(rows);
         if (!rows) {
           return reject('Error occured while processing file');
         }

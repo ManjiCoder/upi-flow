@@ -327,9 +327,8 @@ const generatePaytmRecords = (str: string, bankId: number, lastId: number) => {
 // SBI
 const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const date = parse(arr[2], 'dd MMM yyyy', new Date()).toISOString();
-  const credit = arr[1];
-  const debit = arr[0];
-  console.log(credit, debit);
+  const credit = arr[0];
+  const debit = arr[1];
   const balance = arr[arr.length - 1];
   const details = arr.slice(3, arr.length - 1).join(' ');
   const detailsArr = details.split('/');
