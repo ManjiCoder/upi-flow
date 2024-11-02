@@ -337,6 +337,7 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
     date,
     balance: 0,
     bankId,
+    details,
   };
   if (credit !== '-') {
     payload.credit = stringToNumber(credit);
@@ -360,7 +361,7 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
     const isTarget = str.includes(target);
     if (!isTarget) throw new Error('Invalid records!');
     const startIdx = str.indexOf(target) + target.length;
-    const newStr = str.slice(startIdx, str.length);
+    const newStr = str.slice(startIdx, str.length).replaceAll(target, '\n');
     const lines = newStr.split('\n').filter(emptyCheck());
     lines.forEach((line, i) => {
       if (isValidDate(line, 'dd MMM yyyy')) {
@@ -377,10 +378,12 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
       } else {
         const arr = lines.slice(currLine - 2, nextLine - 2);
         const row = extractRowSbi(arr, lastId + transactions.length, bankId);
+        transactions.unshift(row);
       }
     }
 
     // console.log(dateIdx.map((idx) => lines[idx]));
+    console.log(transactions);
     // return transactions;
   } catch (error) {
     return false;
