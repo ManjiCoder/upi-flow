@@ -327,8 +327,9 @@ const generatePaytmRecords = (str: string, bankId: number, lastId: number) => {
 // SBI
 const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const date = parse(arr[2], 'dd MMM yyyy', new Date()).toISOString();
-  const credit = arr[0];
-  const debit = arr[1];
+  // const credit = arr[0];
+  // const debit = arr[1];
+  const amt = arr.slice(0, 2).find((str) => !str.includes('-'));
   const balance = arr[arr.length - 1];
   const details = arr.slice(3, arr.length - 1).join(' ');
   const detailsArr = details.split('/');
@@ -347,12 +348,12 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
     bankId,
     details,
   };
-  if (credit !== '-') {
-    payload.credit = stringToNumber(credit);
-  }
-  if (debit !== '-') {
-    payload.debit = stringToNumber(debit);
-  }
+  // if (credit !== '-') {
+  //   payload.credit = stringToNumber(credit);
+  // }
+  // if (debit !== '-') {
+  //   payload.debit = stringToNumber(debit);
+  // }
   if (balance) {
     payload.balance = stringToNumber(balance);
   }
@@ -367,6 +368,9 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   if (mode) {
     // @ts-ignore
     payload.mode = PaymentModes[mode];
+  }
+  if (amt) {
+    payload.amt = stringToNumber(amt);
   }
   return payload;
 };
@@ -393,24 +397,46 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
       const currLine = dateIdx[i];
       const nextLine = dateIdx[j];
       if (!nextLine) {
-        const arr = lines.slice(currLine - 2);
-        const lastLine = JSON.parse(JSON.stringify(arr))
-          .reverse()
-          .findIndex((str: string) => !/[a-z]/i.test(str));
-
-        const newArr = arr.slice(0, arr.length - lastLine);
-        const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
-        // console.log(row, newArr);
-        transactions.unshift(row);
+        // const arr = lines.slice(currLine - 2);
+        // const lastLine = JSON.parse(JSON.stringify(arr))
+        //   .reverse()
+        //   .findIndex((str: string) => !/[a-z]/i.test(str));
+        // const newArr = arr.slice(0, arr.length - lastLine);
+        // const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
+        // // console.log(row, newArr);
+        // transactions.unshift(row);
       } else {
         const arr = lines.slice(currLine - 2, nextLine - 2);
         const row = extractRowSbi(arr, lastId + transactions.length, bankId);
-        transactions.unshift(row);
+        transactions.push(row);
       }
     }
 
     // console.log(dateIdx.map((idx) => lines[idx]));
     // console.log(transactions);
+    // Settings credit or debit
+    for (let i = 0; i < transactions.length; i++) {
+      let j = i - 1;
+      const currRow = transactions[i];
+      const prevRow = transactions[j];
+      if (!prevRow) {
+        // @ts-ignore
+        if (currRow.balance < transactions[i + 1].balance) {
+          currRow.credit = currRow.amt;
+        } else {
+          currRow.debit = currRow.amt;
+        }
+      } else {
+        // @ts-ignore
+        if (currRow.balance > prevRow.balance) {
+          currRow.credit = currRow.amt;
+        } else {
+          currRow.debit = currRow.amt;
+        }
+      }
+      delete currRow.amt;
+    }
+
     return transactions;
   } catch (error) {
     return false;

@@ -14,7 +14,13 @@ export default function Settings() {
     //   };
     // });
     // console.table(temp);
-    console.table(rows);
+    if (rows) {
+      // console.table(
+      //   rows.map(({ credit, debit, balance, date, receiver }) => {
+      //     return { date, balance, credit, debit, receiver };
+      //   })
+      // );
+    }
   }, []);
 
   return (
