@@ -20,6 +20,8 @@ export enum PaymentModes {
   CHEQUE = 'Cheque',
   OTHER = 'Other',
   Int = 'Interest',
+  Interest = 'Interest',
+  ATMCARD = 'AMT Card',
   IMPS = 'IMPS',
   BANK = 'Bank',
 }

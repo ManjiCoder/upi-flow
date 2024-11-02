@@ -193,7 +193,6 @@ const extractRowPaytm = (arr: string[], id: number, bankId: number) => {
     id: 0,
     date: '',
     balance: 0,
-    mode: 'upi',
   };
   const n = arr.length;
   const date = new Date(arr.slice(0, 2).join()).toISOString();
@@ -335,6 +334,12 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   const detailsArr = details.split('/');
   const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
   const refNo = detailsArr[refNoIdx];
+  const mode = Object.keys(PaymentModes).find((method) => {
+    const reg = new RegExp(method.toLowerCase());
+    if (reg.test(details.toLowerCase())) {
+      return method;
+    }
+  });
   const payload: Transaction = {
     id,
     date,
@@ -359,7 +364,10 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
   } else {
     payload.receiver = details;
   }
-  // console.log(balance, date);
+  if (mode) {
+    // @ts-ignore
+    payload.mode = PaymentModes[mode];
+  }
   return payload;
 };
 const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
