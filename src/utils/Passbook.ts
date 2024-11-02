@@ -356,6 +356,8 @@ const extractRowSbi = (arr: string[], id: number, bankId: number) => {
     const receiver = detailsArr.slice(refNoIdx + 1);
     receiver.pop();
     payload.receiver = receiver.join(' ');
+  } else {
+    payload.receiver = details;
   }
   return payload;
 };
@@ -382,7 +384,14 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
       const currLine = dateIdx[i];
       const nextLine = dateIdx[j];
       if (!nextLine) {
-        // console.log(currLine, nextLine);
+        const arr = lines.slice(currLine - 2);
+        const lastLine = JSON.parse(JSON.stringify(arr))
+          .reverse()
+          .findIndex((str: string) => !/[a-z]/i.test(str));
+
+        const newArr = arr.slice(0, arr.length - lastLine);
+        const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
+        transactions.unshift(row);
       } else {
         const arr = lines.slice(currLine - 2, nextLine - 2);
         const row = extractRowSbi(arr, lastId + transactions.length, bankId);
