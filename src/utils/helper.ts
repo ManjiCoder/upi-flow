@@ -53,21 +53,23 @@ export const stringToNumber = (str: string) => {
 export const frequentTranscation = (records: Transaction[]) => {
   const mp = new Map();
   records.forEach((item: Transaction) => {
-    const getReceiver = mp.get(item.to);
     const payload = {
       name: item.to,
       count: 1,
       debit: item.debit ?? 0,
       credit: item.credit ?? 0,
     };
-    if (getReceiver) {
-      const updatedPayload = { ...payload };
+    if (mp.has(item.to)) {
+      const updatedPayload = mp.get(item.to);
       updatedPayload.count += 1;
+      // if (item.to === 'poornimabhosale@ybl') {
+      //   console.log('updatedPayload', updatedPayload);
+      // }
+      if (item.credit) {
+        updatedPayload.credit += item.credit;
+      }
       if (item.debit) {
         updatedPayload.debit += item.debit;
-      }
-      if (item.credit) {
-        updatedPayload.debit += item.credit;
       }
       mp.set(item.to, updatedPayload);
     } else {
