@@ -5,7 +5,8 @@ import { bank } from './temp/temp';
 
 export default function Settings() {
   useEffect(() => {
-    const rows = passbook(bank);
+    const test = passbook(bank);
+    console.log(test);
   }, []);
 
   return (
