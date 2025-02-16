@@ -61,7 +61,9 @@ const extractRow = (arr: string[], id: number, bankId: number) => {
   }
 
   // Setting Amount
-  const amt = arr.slice(1, n).find((str) => !/[a-z]|[-\\/]/i.test(str));
+  const amt = arr
+    .slice(1, n)
+    .find((str) => !/[a-z]|[-\\/]/i.test(str) && str.includes('.'));
   if (amt) {
     payload.amt = stringToNumber(amt);
   }
