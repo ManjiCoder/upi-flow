@@ -385,6 +385,7 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
     if (!isTarget) throw new Error('Invalid records!');
     const startIdx = str.indexOf(target) + target.length;
     const newStr = str.slice(startIdx, str.length).replaceAll(target, '\n');
+
     const lines = newStr.split('\n').filter(emptyCheck());
     lines.forEach((line, i) => {
       if (isValidDate(line, 'dd MMM yyyy')) {
@@ -397,13 +398,21 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
       const currLine = dateIdx[i];
       const nextLine = dateIdx[j];
       if (!nextLine) {
-        // const arr = lines.slice(currLine - 2);
-        // const lastLine = JSON.parse(JSON.stringify(arr))
-        //   .reverse()
-        //   .findIndex((str: string) => !/[a-z]/i.test(str));
-        // const newArr = arr.slice(0, arr.length - lastLine);
+        const arr = lines.slice(currLine - 2);
+        const lastLine = JSON.parse(JSON.stringify(arr))
+          .reverse()
+          .findIndex((str: string) => {
+            str = str.replaceAll(
+              '** This is computer generated statement and does not require a signature.',
+              ''
+            );
+
+            console.log(str);
+            return !/[a-z]/i.test(str);
+          });
+        let newArr = arr.slice(0, arr.length - lastLine);
+        console.log(arr, newArr);
         // const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
-        // // console.log(row, newArr);
         // transactions.unshift(row);
       } else {
         const arr = lines.slice(currLine - 2, nextLine - 2);

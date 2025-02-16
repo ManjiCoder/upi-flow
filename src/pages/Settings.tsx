@@ -13,14 +13,14 @@ export default function Settings() {
     //     info: item.details,
     //   };
     // });
-    // console.table(temp);
-    if (rows) {
-      console.table(
-        rows.map(({ credit, debit, balance, date, receiver }) => {
-          return { date, balance, credit, debit, receiver };
-        })
-      );
-    }
+    // console.table(rows);
+    // if (rows) {
+    //   console.table(
+    //     rows.map(({ credit, debit, balance, date, receiver }) => {
+    //       return { date, balance, credit, debit, receiver };
+    //     })
+    //   );
+    // }
   }, []);
 
   return (

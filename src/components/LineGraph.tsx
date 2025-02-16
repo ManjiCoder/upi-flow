@@ -10,7 +10,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { useAppSelector } from '@/redux/hooks';
-import { formatNumber, getTotal } from '@/utils/helper';
+import { formatNumber, frequentTranscation, getTotal } from '@/utils/helper';
 import { format } from 'date-fns';
 
 export const description = 'A line chart with a label';
@@ -37,7 +37,8 @@ const chartConfig = {
 
 export function LineGraph() {
   const { filterData } = useAppSelector((state) => state.dateSlice);
-
+  const records = Object.values(filterData).flat();
+  console.table(frequentTranscation(records))
   const chartData = Object.entries(filterData).map(([key, item]) => {
     return {
       key: format(key, 'dd-MMM-yyyy'),
