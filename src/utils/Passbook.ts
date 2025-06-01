@@ -456,54 +456,59 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
 
 // Union
 const extractRowUnion = (arr: string[], id: number, bankId: number) => {
-  const date = parse(arr[1], 'dd-MM-yyyy', new Date()).toISOString();
+  // console.log(arr);
 
-  const amtIdx = arr
-    .slice(1, arr.length)
-    .findIndex((str) => str.includes('.00'));
+  try {
+    const date = parse(arr[1], 'dd-MM-yyyy', new Date()).toISOString();
 
-  const amt = arr[amtIdx + 1];
-  const balance = arr.at(-1);
-  const details = arr.slice(2, amtIdx + 1).join(' ');
-  const detailsArr = details.split('/');
-  const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
-  const refNo = detailsArr[refNoIdx];
-  const mode = Object.keys(PaymentModes).find((method) => {
-    const reg = new RegExp(method.toLowerCase());
-    if (reg.test(details.toLowerCase())) {
-      return method;
+    const amtIdx = arr
+      .slice(1, arr.length)
+      .findIndex((str) => str.includes('.00'));
+
+    const amt = arr[amtIdx + 1];
+    const balance = arr.find((str) => str.includes('Cr'));
+    const details = arr.slice(2, amtIdx + 1).join(' ');
+    const detailsArr = details.split('/');
+    const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
+    const refNo = detailsArr[refNoIdx];
+    const mode = Object.keys(PaymentModes).find((method) => {
+      const reg = new RegExp(method.toLowerCase());
+      if (reg.test(details.toLowerCase())) {
+        return method;
+      }
+    });
+
+    const payload: Transaction = {
+      id,
+      date,
+      balance: 0,
+      bankId,
+      details,
+    };
+
+    if (balance) {
+      payload.balance = stringToNumber(balance);
     }
-  });
+    if (![' ', '', undefined].includes(refNo)) {
+      payload.refNo = refNo;
+      const receiver = detailsArr.slice(refNoIdx + 1);
+      receiver.pop();
+      payload.receiver = receiver.join(' ');
+    } else {
+      payload.receiver = details;
+    }
+    if (mode) {
+      // @ts-ignore
+      payload.mode = PaymentModes[mode];
+    }
+    if (amt) {
+      payload.amt = stringToNumber(amt);
+    }
 
-  const payload: Transaction = {
-    id,
-    date,
-    balance: 0,
-    bankId,
-    details,
-  };
-
-  if (balance) {
-    payload.balance = stringToNumber(balance);
+    return payload;
+  } catch (error) {
+    return null;
   }
-  if (![' ', '', undefined].includes(refNo)) {
-    payload.refNo = refNo;
-    const receiver = detailsArr.slice(refNoIdx + 1);
-    receiver.pop();
-    payload.receiver = receiver.join(' ');
-  } else {
-    payload.receiver = details;
-  }
-  if (mode) {
-    // @ts-ignore
-    payload.mode = PaymentModes[mode];
-  }
-  if (amt) {
-    payload.amt = stringToNumber(amt);
-  }
-  console.log(payload.refNo);
-
-  // return payload;
 };
 const generateUnionRecords = (str: string, bankId: number, lastId: number) => {
   // Steps date, rows, push
@@ -528,42 +533,14 @@ const generateUnionRecords = (str: string, bankId: number, lastId: number) => {
       let j = i + 1;
       const currLine = dateIdx[i];
       const nextLine = dateIdx[j];
-
-      // if (!nextLine) {
-      //   const arr = lines.slice(currLine - 2);
-      //   // console.log(arr);
-
-      //   const lastLine = JSON.parse(JSON.stringify(arr))
-      //     .reverse()
-      //     .findIndex((str: string) => {
-      //       str = str.replaceAll(
-      //         '** This is computer generated statement and does not require a signature.',
-      //         ''
-      //       );
-
-      //       // console.log(str);
-      //       return !/[a-z]/i.test(str);
-      //     });
-      //   let newArr = arr.slice(0, arr.length - lastLine);
-      //   // console.log(arr, newArr);
-      //   // const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
-      //   // transactions.unshift(row);
-      // } else {
       const arr = lines.slice(currLine - 1, nextLine - 1);
-      // console.log(arr);
-
       const row = extractRowUnion(arr, lastId + transactions.length, bankId);
-      // console.log(row);
-
-      // transactions.push(row);
-
-      // console.log(row);
-
-      // }
+      if (row) {
+        transactions.push(row);
+      }
     }
 
     // console.log(dateIdx.map((idx) => lines[idx]));
-    // console.log(transactions);
     // Settings credit or debit
     // for (let i = 0; i < transactions.length; i++) {
     //   let j = i - 1;
@@ -589,6 +566,8 @@ const generateUnionRecords = (str: string, bankId: number, lastId: number) => {
 
     return transactions;
   } catch (error) {
+    console.log(error);
+
     return false;
   }
 };
