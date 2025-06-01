@@ -463,11 +463,12 @@ const extractRowUnion = (arr: string[], id: number, bankId: number) => {
 
     const amtIdx = arr
       .slice(1, arr.length)
-      .findIndex((str) => str.includes('.00'));
+      .findIndex((str) => str.includes('.') && !/[a-z]/i.test(str));
 
     const amt = arr[amtIdx + 1];
     const balance = arr.find((str) => str.includes('Cr'));
     const details = arr.slice(2, amtIdx + 1).join(' ');
+
     const detailsArr = details.split('/');
     const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
     const refNo = detailsArr[refNoIdx];
@@ -491,12 +492,18 @@ const extractRowUnion = (arr: string[], id: number, bankId: number) => {
     }
     if (![' ', '', undefined].includes(refNo)) {
       payload.refNo = refNo;
-      const receiver = detailsArr.slice(refNoIdx + 1);
-      receiver.pop();
-      payload.receiver = receiver.join(' ');
+      const receiver = `${detailsArr.at(-3)?.trim()}-(${detailsArr
+        .at(-1)
+        ?.trim()})`;
+      payload.receiver = receiver;
     } else {
-      payload.receiver = details;
+      if (details.includes(':')) {
+        payload.receiver = details.split(':')[1];
+      } else {
+        payload.receiver = details || 'Unknown';
+      }
     }
+
     if (mode) {
       // @ts-ignore
       payload.mode = PaymentModes[mode];
@@ -504,6 +511,10 @@ const extractRowUnion = (arr: string[], id: number, bankId: number) => {
     if (amt) {
       payload.amt = stringToNumber(amt);
     }
+    if (!payload.details) {
+      console.log(arr, payload);
+    }
+    // console.log(payload.details);
 
     return payload;
   } catch (error) {
@@ -542,27 +553,34 @@ const generateUnionRecords = (str: string, bankId: number, lastId: number) => {
 
     // console.log(dateIdx.map((idx) => lines[idx]));
     // Settings credit or debit
-    // for (let i = 0; i < transactions.length; i++) {
-    //   let j = i - 1;
-    //   const currRow = transactions[i];
-    //   const prevRow = transactions[j];
-    //   if (!prevRow) {
-    //     // @ts-ignore
-    //     if (currRow.balance < transactions[i + 1].balance) {
-    //       currRow.credit = currRow.amt;
-    //     } else {
-    //       currRow.debit = currRow.amt;
-    //     }
-    //   } else {
-    //     // @ts-ignore
-    //     if (currRow.balance > prevRow.balance) {
-    //       currRow.credit = currRow.amt;
-    //     } else {
-    //       currRow.debit = currRow.amt;
-    //     }
-    //   }
-    //   delete currRow.amt;
-    // }
+    for (let i = 0; i < transactions.length; i++) {
+      let j = i - 1;
+      const currRow = transactions[i];
+      const prevRow = transactions[j];
+      const isCr = currRow.details?.split('/').includes('CR');
+      const isDR = currRow.details?.split('/').includes('DR');
+      // console.log({ isCrDR });
+      if (isCr || isDR) {
+        currRow[isCr ? 'credit' : 'debit'] = currRow.amt;
+      } else {
+        if (!prevRow) {
+          // @ts-ignore
+          if (currRow.balance < transactions[i + 1].balance) {
+            currRow.credit = currRow.amt;
+          } else {
+            currRow.debit = currRow.amt;
+          }
+        } else {
+          // @ts-ignore
+          if (currRow.balance > prevRow.balance) {
+            currRow.credit = currRow.amt;
+          } else {
+            currRow.debit = currRow.amt;
+          }
+        }
+      }
+      delete currRow.amt;
+    }
 
     return transactions;
   } catch (error) {
