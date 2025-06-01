@@ -1,11 +1,11 @@
 import PageWrapper from '@/components/layout/PageWrapper';
 import passbook from '@/utils/Passbook';
 import { useEffect } from 'react';
-import { bank } from './temp/temp';
+import { union } from './temp/temp';
 
 export default function Settings() {
   useEffect(() => {
-    const test = passbook(bank);
+    const test = passbook(union);
     console.log(test);
   }, []);
 

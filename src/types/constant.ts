@@ -7,6 +7,7 @@ export const banks = {
   icici: { id: 1, name: 'icicibank' },
   sbi: { id: 2, name: 'State Bank of India' },
   paytm: { id: 3, name: 'www.paytmbank.com' },
+  union: { id: 4, name: 'UBIN' },
 };
 
 export enum PaymentModes {
@@ -14,6 +15,7 @@ export enum PaymentModes {
   CREDIT_CARD = 'Credit Card',
   DEBIT_CARD = 'Debit Card',
   NET_BANKING = 'Net Banking',
+  NEFT = 'NEFT',
   MOBILE_BANKING = 'Moblie Banking',
   UPI = 'UPI',
   WALLET = 'Wallet',

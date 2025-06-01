@@ -453,6 +453,145 @@ const generateSBIRecords = (str: string, bankId: number, lastId: number) => {
     return false;
   }
 };
+
+// Union
+const extractRowUnion = (arr: string[], id: number, bankId: number) => {
+  const date = parse(arr[1], 'dd-MM-yyyy', new Date()).toISOString();
+
+  const amtIdx = arr
+    .slice(1, arr.length)
+    .findIndex((str) => str.includes('.00'));
+
+  const amt = arr[amtIdx + 1];
+  const balance = arr.at(-1);
+  const details = arr.slice(2, amtIdx + 1).join(' ');
+  const detailsArr = details.split('/');
+  const refNoIdx = detailsArr.findIndex((str) => !/[a-z]/i.test(str));
+  const refNo = detailsArr[refNoIdx];
+  const mode = Object.keys(PaymentModes).find((method) => {
+    const reg = new RegExp(method.toLowerCase());
+    if (reg.test(details.toLowerCase())) {
+      return method;
+    }
+  });
+
+  const payload: Transaction = {
+    id,
+    date,
+    balance: 0,
+    bankId,
+    details,
+  };
+
+  if (balance) {
+    payload.balance = stringToNumber(balance);
+  }
+  if (![' ', '', undefined].includes(refNo)) {
+    payload.refNo = refNo;
+    const receiver = detailsArr.slice(refNoIdx + 1);
+    receiver.pop();
+    payload.receiver = receiver.join(' ');
+  } else {
+    payload.receiver = details;
+  }
+  if (mode) {
+    // @ts-ignore
+    payload.mode = PaymentModes[mode];
+  }
+  if (amt) {
+    payload.amt = stringToNumber(amt);
+  }
+  console.log(payload.refNo);
+
+  // return payload;
+};
+const generateUnionRecords = (str: string, bankId: number, lastId: number) => {
+  // Steps date, rows, push
+  try {
+    const transactions: Transaction[] = [];
+    const dateIdx: number[] = [];
+    const target =
+      'SI\n \nDate\nParticulars\nChq Num\n \nWithdrawal\nDeposit\nBalance';
+    const isTarget = str.includes(target);
+    if (!isTarget) throw new Error('Invalid records!');
+    const startIdx = str.indexOf(target) + target.length;
+    const newStr = str.slice(startIdx, str.length).replaceAll(target, '\n');
+
+    const lines = newStr.split('\n').filter(emptyCheck());
+    lines.forEach((line, i) => {
+      if (isValidDate(line, 'dd-MM-yyyy')) {
+        dateIdx.push(i);
+      }
+    });
+
+    for (let i = 0; i < dateIdx.length; i++) {
+      let j = i + 1;
+      const currLine = dateIdx[i];
+      const nextLine = dateIdx[j];
+
+      // if (!nextLine) {
+      //   const arr = lines.slice(currLine - 2);
+      //   // console.log(arr);
+
+      //   const lastLine = JSON.parse(JSON.stringify(arr))
+      //     .reverse()
+      //     .findIndex((str: string) => {
+      //       str = str.replaceAll(
+      //         '** This is computer generated statement and does not require a signature.',
+      //         ''
+      //       );
+
+      //       // console.log(str);
+      //       return !/[a-z]/i.test(str);
+      //     });
+      //   let newArr = arr.slice(0, arr.length - lastLine);
+      //   // console.log(arr, newArr);
+      //   // const row = extractRowSbi(newArr, lastId + transactions.length, bankId);
+      //   // transactions.unshift(row);
+      // } else {
+      const arr = lines.slice(currLine - 1, nextLine - 1);
+      // console.log(arr);
+
+      const row = extractRowUnion(arr, lastId + transactions.length, bankId);
+      // console.log(row);
+
+      // transactions.push(row);
+
+      // console.log(row);
+
+      // }
+    }
+
+    // console.log(dateIdx.map((idx) => lines[idx]));
+    // console.log(transactions);
+    // Settings credit or debit
+    // for (let i = 0; i < transactions.length; i++) {
+    //   let j = i - 1;
+    //   const currRow = transactions[i];
+    //   const prevRow = transactions[j];
+    //   if (!prevRow) {
+    //     // @ts-ignore
+    //     if (currRow.balance < transactions[i + 1].balance) {
+    //       currRow.credit = currRow.amt;
+    //     } else {
+    //       currRow.debit = currRow.amt;
+    //     }
+    //   } else {
+    //     // @ts-ignore
+    //     if (currRow.balance > prevRow.balance) {
+    //       currRow.credit = currRow.amt;
+    //     } else {
+    //       currRow.debit = currRow.amt;
+    //     }
+    //   }
+    //   delete currRow.amt;
+    // }
+
+    return transactions;
+  } catch (error) {
+    return false;
+  }
+};
 // Main Function
 function passbook(str: string, lastId = 0) {
   if (str.includes(banks.icici.name)) {
@@ -461,6 +600,8 @@ function passbook(str: string, lastId = 0) {
     return generateSBIRecords(str, banks.sbi.id, lastId);
   } else if (str.includes(banks.paytm.name)) {
     return generatePaytmRecords(str, banks.paytm.id, lastId);
+  } else if (str.includes(banks.union.name)) {
+    return generateUnionRecords(str, banks.union.id, lastId);
   }
 }
 
